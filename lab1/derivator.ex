@@ -23,20 +23,44 @@ defmodule Derivator do
     {:add, {:mul, ex0, d_ex1}, {:mul, ex1, d_ex0}}
   end
 
-  @spec outer_scope_simplify(expr()) :: expr()
-  def outer_scope_simplify({:add, {:num, 0}, ex}) do ex end
-  def outer_scope_simplify({:add, ex,{:num, 0}}) do ex end
-  def outer_scope_simplify({:mul, {:num, 1}, ex}) do ex end
-  def outer_scope_simplify({:mul, ex, {:num, 1}}) do ex end
-  def outer_scope_simplify(_) do false end
+  @spec simplify(expr()) :: expr()
+  def simplify({:add, {:num, 0}, ex}) do ex end
+  def simplify({:add, ex,{:num, 0}}) do ex end
+  def simplify({:mul, {:num, 1}, ex}) do ex end
+  def simplify({:mul, ex, {:num, 1}}) do ex end
 
-  @spec simplify(expr()):: expr()
-  def simplify (ex) do
-    simplex = outer_scope_simplify(ex)
+  def simplify({:mul, {:num, c0}, {:num, c1}}) do {:num, c0 * c1} end
+  def simplify({:mul, _, {:num, 0}}) do {:num, 0} end
+  def simplify({:mul, {:num, 0}, _}) do {:num, 0} end
+  def simplify({:add, {:num, c0}, {:num, c1}}) do {:num, c0 + c1} end
+  def simplify(_) do false end
+
+  @spec outer_simplify(expr()):: expr()
+  def outer_simplify(ex) do
+    simplex = simplify(ex)
     if simplex === false do
       ex
     else
-      simplify(simplex)
+      outer_simplify(simplex)
+    end
+  end
+
+  @spec inner_simplify(expr()) :: expr()
+  def inner_simplify(ex) do
+    IO.inspect(ex)
+    IO.puts("\n")
+    case ex do
+      {:num,_}-> ex
+      {:var,_}-> ex
+      {:mul, ex0, ex1} ->
+        isim0 = inner_simplify(ex0);
+        isim1 = inner_simplify(ex1);
+        simplify({:mul, isim0, isim1})||ex #sim0 can be false if ex0 cannot be further simplified
+      {:add, ex0, ex1} ->
+        isim0 = inner_simplify(ex0);
+        isim1 = inner_simplify(ex1);
+        simplify({:add, isim0, isim1})||ex
+      _-> ex #throw error?
     end
   end
 end
