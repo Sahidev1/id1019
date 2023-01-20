@@ -40,15 +40,19 @@ defmodule Derivator do
   end
 
   def derive({:pow, {op, ex0, ex1}, l}, v) do
-    atomex = {:pow, {:var, :atex}, l}
-    d_atomex = derive(atomex, :atex);
-    outer_der = replace_atom_toexp(d_atomex, :atex, {op, ex0, ex1})
-    inner_der = derive({op, ex0, ex1}, v);
-    {:mul, inner_der, outer_der}
+    chain_rule({:pow, {op, ex0, ex1}, l}, v)
   end
 
   def derive({:pow, {:var, _}, _}, _) do {:num, 0} end # var is constant
-  # implementing chain rule
+
+  # implementing chain rule with ex0 as inner function
+  def chain_rule({op, ex0, ex1}, v) do
+    atomex0 = {op, {:var, :atex}, ex1}
+    d_atomex0 = derive(atomex0, :atex)
+    outer_deriv = replace_atom_toexp(d_atomex0, :atex, ex0);
+    inner_deriv = derive(ex0, v);
+    {:mul, inner_deriv, outer_deriv}
+  end
 
   @spec simplify(expr()) :: expr()
   def simplify({:add, {:num, 0}, ex}) do ex end
