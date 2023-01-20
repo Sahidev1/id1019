@@ -25,14 +25,16 @@ defmodule Derivator do
 
   @spec simplify(expr()) :: expr()
   def simplify({:add, {:num, 0}, ex}) do ex end
-  def simplify({:add, ex,{:num, 0}}) do ex end
+  def simplify({:add, ex, {:num, 0}}) do ex end
+
+  def simplify({:add, {:num, c0}, {:num, c1}}) do {:num, c0 + c1} end
+
   def simplify({:mul, {:num, 1}, ex}) do ex end
   def simplify({:mul, ex, {:num, 1}}) do ex end
 
   def simplify({:mul, {:num, c0}, {:num, c1}}) do {:num, c0 * c1} end
   def simplify({:mul, _, {:num, 0}}) do {:num, 0} end
   def simplify({:mul, {:num, 0}, _}) do {:num, 0} end
-  def simplify({:add, {:num, c0}, {:num, c1}}) do {:num, c0 + c1} end
   def simplify(_) do false end
 
   @spec outer_simplify(expr()):: expr()
@@ -55,10 +57,14 @@ defmodule Derivator do
       {:mul, ex0, ex1} ->
         isim0 = inner_simplify(ex0);
         isim1 = inner_simplify(ex1);
+        IO.inspect(simplify({:mul, isim0, isim1})||ex)
+        IO.puts("\nsimple")
         simplify({:mul, isim0, isim1})||ex #sim0 can be false if ex0 cannot be further simplified
       {:add, ex0, ex1} ->
         isim0 = inner_simplify(ex0);
         isim1 = inner_simplify(ex1);
+        IO.inspect(simplify({:add, isim0, isim1})||ex)
+        IO.puts("\nsimple")
         simplify({:add, isim0, isim1})||ex
       _-> ex #throw error?
     end
