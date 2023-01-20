@@ -35,38 +35,16 @@ defmodule Derivator do
   def simplify({:mul, {:num, c0}, {:num, c1}}) do {:num, c0 * c1} end
   def simplify({:mul, _, {:num, 0}}) do {:num, 0} end
   def simplify({:mul, {:num, 0}, _}) do {:num, 0} end
-  def simplify(_) do false end
+  def simplify(ex) do ex end
 
-  @spec outer_simplify(expr()):: expr()
-  def outer_simplify(ex) do
-    simplex = simplify(ex)
-    if simplex === false do
-      ex
-    else
-      outer_simplify(simplex)
-    end
-  end
-
-  @spec inner_simplify(expr()) :: expr()
-  def inner_simplify(ex) do
-    IO.inspect(ex)
-    IO.puts("\n")
+  @spec simplifier(expr()) :: expr()
+  def simplifier(ex) do
     case ex do
-      {:num,_}-> ex
-      {:var,_}-> ex
-      {:mul, ex0, ex1} ->
-        isim0 = inner_simplify(ex0);
-        isim1 = inner_simplify(ex1);
-        IO.inspect(simplify({:mul, isim0, isim1})||ex)
-        IO.puts("\nsimple")
-        simplify({:mul, isim0, isim1})||ex #sim0 can be false if ex0 cannot be further simplified
-      {:add, ex0, ex1} ->
-        isim0 = inner_simplify(ex0);
-        isim1 = inner_simplify(ex1);
-        IO.inspect(simplify({:add, isim0, isim1})||ex)
-        IO.puts("\nsimple")
-        simplify({:add, isim0, isim1})||ex
-      _-> ex #throw error?
+      {optype, ex0, ex1}->
+        s0 = simplifier(ex0)
+        s1 = simplifier(ex1)
+        simplify({optype, s0, s1})
+      _-> ex
     end
   end
 end
