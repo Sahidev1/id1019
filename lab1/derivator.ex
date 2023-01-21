@@ -120,22 +120,13 @@ defmodule Derivator do
     end
   end
   def simplify({op, {op, {:num, c1}, ex}, {:num, c0}}) do
-    case op do
-      :mul->{op, {:num, c0 * c1}, ex}
-      :add->{op, {:num, c0 + c1}, ex}
-    end
+    simplify({op, {:num, c0}, {op, {:num, c1}, ex}})
   end
   def simplify({op, {op, ex, {:num, c1}}, {:num, c0}}) do
-    case op do
-      :mul->{op, {:num, c0 * c1}, ex}
-      :add->{op, {:num, c0 + c1}, ex}
-    end
+    simplify({op, {:num, c0}, {op, {:num, c1}, ex}})
   end
   def simplify({op, {:num, c0}, {op, ex, {:num, c1}}}) do
-    case op do
-      :mul->{op, {:num, c0 * c1}, ex}
-      :add->{op, {:num, c0 + c1}, ex}
-    end
+    simplify({op, {:num, c0}, {op, {:num, c1}, ex}})
   end
 
   def simplify({:mul, {:num, 1}, ex}) do ex end
