@@ -1,6 +1,5 @@
 
 defmodule Derivator do
-
   @type literal :: {:num, number()}
   | {:var, atom()}
 
