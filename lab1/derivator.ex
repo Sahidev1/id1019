@@ -51,15 +51,9 @@ defmodule Derivator do
     {:mul, coeff, variable}
   end
 
-  def derive({:pow, {op, ex0, ex1}, l}, v) do
-    chain_rule({:pow, {op, ex0, ex1}, l}, v)
-  end
-
+  def derive({:pow, {op, ex0, ex1}, l}, v) do chain_rule({:pow, {op, ex0, ex1}, l}, v) end
   def derive({:pow, {:var, _}, _}, _) do {:num, 0} end # var is constant
-
-  def derive({:pow, {op, ex}, l}, v) do
-    chain_rule({:pow, {op, ex}, l}, v)
-  end
+  def derive({:pow, {op, ex}, l}, v) do chain_rule({:pow, {op, ex}, l}, v) end
 
   def derive({:ln, {:var, v}}, v) do  {:pow, {:var, v}, {:num, -1}} end
   def derive({:sin, {:var, v}}, v) do {:cos, {:var, v}} end
@@ -95,11 +89,8 @@ defmodule Derivator do
   @spec simplify(expr()) :: expr()
   def simplify({:add, {:num, 0}, ex}) do ex end
   def simplify({:add, ex, {:num, 0}}) do ex end
-
   def simplify({:add, {:num, c0}, {:num, c1}}) do {:num, c0 + c1} end
-  def simplify({:add, {:var, v}, {:var, v}}) do
-    {:mul, {:num, 2}, {:var, v}}
-  end
+  def simplify({:add, {:var, v}, {:var, v}}) do {:mul, {:num, 2}, {:var, v}} end
   def simplify({:add, {:add, ex, {:num, c0}}, {:add, ex, {:num, c1}}}) do
     {:add, {:mul, {:num, 2}, ex}, {:num, c0 + c1}}
   end
@@ -125,7 +116,6 @@ defmodule Derivator do
 
   def simplify({:mul, {:num, 1}, ex}) do ex end
   def simplify({:mul, ex, {:num, 1}}) do ex end
-
   def simplify({:mul, {:num, c0}, {:num, c1}}) do {:num, c0 * c1} end
   def simplify({:mul, _, {:num, 0}}) do {:num, 0} end
   def simplify({:mul, {:num, 0}, _}) do {:num, 0} end
@@ -144,7 +134,6 @@ defmodule Derivator do
   end
   def simplify({:sin, {:num, c}}) do {:num, :math.sin(c)} end
   def simplify({:cos, {:num, c}}) do {:num, :math.cos(c)} end
-
   def simplify(ex) do ex end # return expression when no simplification found or expr is atomic
 
   # function traverses AST to its atomic leaves and then propagates back to root
