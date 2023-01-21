@@ -61,20 +61,14 @@ defmodule Derivator do
     chain_rule({:pow, {op, ex}, l}, v)
   end
 
-  def derive({:ln, {:num, _}}, _) do {:num, 0} end
   def derive({:ln, {:var, v}}, v) do  {:pow, {:var, v}, {:num, -1}} end
-  def derive({:ln, {:var, _}}, _) do {:num, 0} end # var is a constant like pi
-  def derive({:ln, ex}, v) do chain_rule({:ln, ex}, v) end
-
-  def derive({:sin, {:num, _}}, _) do {:num, 0} end
   def derive({:sin, {:var, v}}, v) do {:cos, {:var, v}} end
-  def derive({:sin, {:var, _}}, _) do {:num, 0} end
-  def derive({:sin, ex}, v) do chain_rule({:sin, ex}, v) end
-
-  def derive({:cos, {:num, _}}, _) do {:num, 0} end
   def derive({:cos, {:var, v}}, v) do {:mul, {:num, -1}, {:sin, {:var, v}}} end
-  def derive({:cos, {:var, _}}, _) do {:num, 0} end
+  def derive({_, {:num, _}}, _) do {:num, 0} end
+  def derive({_, {:var, _}}, _) do {:num, 0} end
   def derive({:cos, ex}, v) do chain_rule({:cos, ex}, v) end
+  def derive({:sin, ex}, v) do chain_rule({:sin, ex}, v) end
+  def derive({:ln, ex}, v) do chain_rule({:ln, ex}, v) end
 
   # implementing chain rule with ex0 as inner function
   # replaces inner expression with an atom and derives the expression
