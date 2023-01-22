@@ -64,16 +64,16 @@ defmodule Derivator do
   def derive({:sin, ex}, v) do chain_rule({:sin, ex}, v) end
   def derive({:ln, ex}, v) do chain_rule({:ln, ex}, v) end
 
-  # implementing chain rule with ex0 as inner function
+  # implementing chain rule with ex as inner function
   # replaces inner expression with an atom and derives the expression
   # then replace the atom in the derivative with the original inner expression
   # then we evualute derivate of inner expression
   @spec chain_rule(expr(), atom()) :: expr()
-  def chain_rule({op, ex0, ex1}, v) do
-    atomex0 = {op, {:var, :atex}, ex1}
+  def chain_rule({op, ex, lit}, v) do
+    atomex0 = {op, {:var, :atex}, lit}
     d_atomex0 = derive(atomex0, :atex)
-    outer_deriv = replace_atom_with_expr(d_atomex0, :atex, ex0)
-    inner_deriv = derive(ex0, v)
+    outer_deriv = replace_atom_with_expr(d_atomex0, :atex, ex)
+    inner_deriv = derive(ex, v)
     {:mul, inner_deriv, outer_deriv}
   end
 
