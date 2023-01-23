@@ -1,6 +1,6 @@
 defmodule EnvList do
   def testMap() do
-    m = add(nil, 4, :x)
+    m = new();
     m = add(m, 11, :y)
     m = add(m, 7, :z)
     m = add(m, 1, :v)
@@ -12,7 +12,6 @@ defmodule EnvList do
   # we add elements so that sorting is maintained
   # the benefit of sorted list implementation of a map is that
   # you do not need to look up entire list for already existing keys on add operations
-  def add(nil, key, value) do [{key, value}] end
   def add([], key, value) do [{key, value}] end
   def add([{key, _}|t], key, value) do [{key, value}|t] end
   def add([{hkey,v}|t], key, value) when key < hkey do [{key, value}|[{hkey,v}|t]] end
