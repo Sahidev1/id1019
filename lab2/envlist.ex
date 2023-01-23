@@ -10,4 +10,8 @@ defmodule EnvList do
       key === hkey -> [{key, value}|t]
     end
   end
+
+  def lookup([], _) do nil end
+  def lookup([{key, val}|_], key) do {key, val} end
+  def lookup([_|t], key) do lookup(t, key) end
 end
