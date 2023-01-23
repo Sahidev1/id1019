@@ -7,6 +7,11 @@ defmodule EnvList do
     m
   end
 
+  def new() do [] end
+
+  # we add elements so that sorting is maintained
+  # the benefit of sorted list implementation of a map is that
+  # you do not need to look up entire list for already existing keys on add operations
   def add(nil, key, value) do [{key, value}] end
   def add([], key, value) do [{key, value}] end
   def add([{key, _}|t], key, value) do [{key, value}|t] end
@@ -16,4 +21,8 @@ defmodule EnvList do
   def lookup([], _) do nil end
   def lookup([{key, val}|_], key) do {key, val} end
   def lookup([_|t], key) do lookup(t, key) end
+
+  def remove([], _) do [] end
+  def remove([{key, _}|t], key) do remove(t, key) end
+  def remove([h|t], key) do [h|remove(t, key)] end
 end
