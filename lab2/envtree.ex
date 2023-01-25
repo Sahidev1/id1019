@@ -44,5 +44,4 @@ defmodule EnvTree do
   def find_max (nil) do nil end
   def find_max ({k, v, _, nil}) do {k, v} end
   def find_max ({_, _, _, right}) do find_max(right) end
-
 end
