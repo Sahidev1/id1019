@@ -1,9 +1,12 @@
 defmodule EnvList do
   def testMap() do
-    m = new();
+    m = new()
     m = add(m, 11, :y)
     m = add(m, 7, :z)
     m = add(m, 1, :v)
+    m = add(m, 4, :x)
+    m = add(m, 9, :o)
+    m = add(m, 14, :u)
     m
   end
 
@@ -22,6 +25,6 @@ defmodule EnvList do
   def lookup([_|t], key) do lookup(t, key) end
 
   def remove([], _) do [] end
-  def remove([{key, _}|t], key) do remove(t, key) end
+  def remove([{key, _}|t], key) do t end
   def remove([h|t], key) do [h|remove(t, key)] end
 end
