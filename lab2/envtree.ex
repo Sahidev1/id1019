@@ -30,7 +30,6 @@ defmodule EnvTree do
 
   @spec remove(mnode(), any())::mnode()
   def remove(nil, _) do nil end
-  def remove({k, _, nil, nil}, k) do nil end
   def remove({k, _, left, nil}, k) do left end
   def remove({k, _, nil, right}, k) do right end
   def remove({k, _, left, right}, k) do
