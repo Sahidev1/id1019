@@ -30,10 +30,10 @@ defmodule Benchmark do
     {i, n, add, lookup, remove}
   end
 
-  @spec bench(atom(), integer())::any()
-  def bench(env, n) do
-    ls = [16,32,64,128,256,512,1024,2*1024,4*1024,8*1024, 16*1024, 32*1024, 64*1024]
-
+  @spec bencher(atom(), integer(), integer())::any()
+  def bencher(env, n, power2) do
+    #ls = [16,32,64,128,256,512,1024,2*1024,4*1024,8*1024, 16*1024, 32*1024, 64*1024]
+    ls = Enum.map(4..power2, fn i -> pow2(i) end)
     :io.format("# benchmark with ~w operations, time per operation in us\n", [n])
     :io.format("~6.s~12.s~12.s~12.s\n", ["n", "add", "lookup", "remove"])
 
@@ -52,5 +52,14 @@ defmodule Benchmark do
       {_, i, t_add, t_look, t_rm} = bench(env, map_size, i)
       :io.format("~6.w~12.2f~12.2f~12.2f\n", [i, t_add/1, t_look/1, t_rm/1])
     end)
+  end
+
+  @spec pow2(integer())::integer()
+  defp pow2(e) do
+    if (e === 0) do
+      1
+    else
+      2 * pow2(e - 1)
+    end
   end
 end
