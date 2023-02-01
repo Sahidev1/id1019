@@ -1,0 +1,2 @@
+
+bindings = [{{:var, :x},{:num, 3}}, {{:var, :y}, {:q, 7, 3}}, {{:var, :z}, {:num, 11}}]
