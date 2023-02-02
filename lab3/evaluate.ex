@@ -61,10 +61,7 @@ defmodule Evaluate do
     l = lcm(m0, m1)
     {:q, n0, m0} = {:q, n0*(div(l, m0)), l}
     {:q, n1, m1} = {:q, n1*(div(l, m1)), l}
-    cond do
-      rem(n0 + n1, l) === 0-> {:num, div(n0 + n1, l)}
-      true-> {:q, n0 + n1, l}
-    end
+    (rem(n0 + n1, l) === 0 && {:num, div(n0 + n1, l)}) || {:q, n0 + n1, l}
   end
 
   def mul({:num, n0}, {:num, n1}) do {:num, n0 * n1} end
@@ -81,11 +78,7 @@ defmodule Evaluate do
 
   def divide({:num, n0}, {:num, n1}) do
     zero_divisor_checker({:q, n0, n1})
-    r = rem(n0, n1)
-    cond do
-      r === 0->{:num, div(n0, n1)}
-      true->simplify_fraction({:q, n0, n1})
-    end
+    (rem(n0, n1) === 0 && {:num, div(n0, n1)}) || simplify_fraction({:q, n0, n1})
   end
   def divide({:q, n0, m}, {:num, n1}) do mul(simplify_fraction({:q, n0, m}), {:q, 1, n1}) end
   def divide({:num, n0}, {:q, n1, m}) do mul({:num, n0}, simplify_fraction({:q, m, n1})) end
@@ -114,10 +107,7 @@ defmodule Evaluate do
   @spec gcd(integer(), integer()) :: integer()
   def gcd(a, b) do
     r = rem(a, b)
-    cond do
-      r === 0-> b
-      true-> gcd(b, r)
-    end
+    (r === 0 && b) || gcd(b, r)
   end
 
   @spec lcm(integer(), integer()) :: integer()
