@@ -37,13 +37,16 @@ defmodule Evaluate do
 
   @spec eval(expr(), map()) :: literal()
   def eval({:num, n}, _) do {:num, n} end
-  def eval({:q, n, m}, _) do {:q, n, m} end
+  def eval({:q, n, m}, _) do
+    zero_divisor_checker({:q, n, m})
+    {:q, n, m}
+  end
   def eval({:var, v}, env) do find_bind(env, {:var, v}) end
   def eval({:add, e0, e1}, env) do add(eval(e0, env), eval(e1, env)) end
   def eval({:sub, e0, e1}, env) do
     case eval(e1, env) do
       {:num, n}->add(eval(e0, env), {:num, -n})
-      {:q, n, m}->sign_redundancy_ctrl(add(eval(e0, env), {:q, -n, m}))
+      {:q, n, m}->sign_redundancy(add(eval(e0, env), {:q, -n, m}))
     end
   end
   def eval({:mul, e0, e1}, env) do mul(eval(e0, env), eval(e1, env)) end
@@ -53,7 +56,6 @@ defmodule Evaluate do
   def add({:q, n0, m}, {:num, n1}) do add({:q, n0, m}, {:q, n1 * m, m}) end
   def add({:num, n0}, {:q, n1, m}) do add({:q, n1, m}, {:num, n0}) end
   def add({:q, n0, m0}, {:q, n1, m1}) do
-    zero_divisor_checker({:q, n0, m0}) && zero_divisor_checker({:q, n1, m1})
     {:q, n0, m0} = simplify_fraction({:q, n0, m0})
     {:q, n1, m1} = simplify_fraction({:q, n1, m1})
     l = lcm(m0, m1)
@@ -67,13 +69,11 @@ defmodule Evaluate do
 
   def mul({:num, n0}, {:num, n1}) do {:num, n0 * n1} end
   def mul({:q, n0, m}, {:num, n1}) do
-    zero_divisor_checker({:q, n0, m})
     {:q, n0, m} = simplify_fraction({:q, n0, m})
     div_one_redundancy(simplify_fraction({:q, n0 * n1, m}))
   end
   def mul({:num, n0}, {:q, n1, m}) do mul({:q, n1, m}, {:num, n0}) end
   def mul({:q, n0, m0}, {:q, n1, m1}) do
-    zero_divisor_checker({:q, n0, m0}) && zero_divisor_checker({:q, n1, m1})
     {:q, n0, m0} = simplify_fraction({:q, n0, m0})
     {:q, n1, m1} = simplify_fraction({:q, n1, m1})
     div_one_redundancy(simplify_fraction({:q, n0 * n1, m0 * m1}))
@@ -87,19 +87,14 @@ defmodule Evaluate do
       true->simplify_fraction({:q, n0, n1})
     end
   end
-  def divide({:q, n0, m}, {:num, n1}) do
-    mul(simplify_fraction({:q, n0, m}), {:q, 1, n1})
-  end
-  def divide({:num, n0}, {:q, n1, m}) do
-    mul({:num, n0}, simplify_fraction({:q, m, n1}))
-  end
+  def divide({:q, n0, m}, {:num, n1}) do mul(simplify_fraction({:q, n0, m}), {:q, 1, n1}) end
+  def divide({:num, n0}, {:q, n1, m}) do mul({:num, n0}, simplify_fraction({:q, m, n1})) end
   def divide({:q, n0, m0}, {:q, n1, m1}) do
     mul(simplify_fraction({:q, n0, m0}), simplify_fraction({:q, m1, n1}))
   end
 
-  def sign_redundancy_ctrl({:q, n, m}) when n < 0 and m < 0 do {:q, -n, -m} end
-  def sign_redundancy_ctrl({:q, n, m}) do {:q, n, m} end
-  def sign_redundancy_ctrl({:num, n}) do {:num, n} end
+  def sign_redundancy({:q, n, m}) when n < 0 and m < 0 do {:q, -n, -m} end
+  def sign_redundancy(ex) do ex end
 
   def div_one_redundancy({:q, n, m}) when m === 1 do {:num, n} end
   def div_one_redundancy(ex) do ex end
@@ -126,8 +121,5 @@ defmodule Evaluate do
   end
 
   @spec lcm(integer(), integer()) :: integer()
-  def lcm(a, b) do
-    g = gcd(a, b)
-    div(a, g)*b
-  end
+  def lcm(a, b) do div(a, gcd(a, b))*b end
 end
