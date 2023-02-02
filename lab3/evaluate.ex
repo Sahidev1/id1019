@@ -17,9 +17,11 @@ defmodule Evaluate do
   | literal()
 
   def test() do
-    q0 = {:q, 2, 3}
-    q1 = {:q, 11, 5}
-    add(q0, q1)
+    bindings = [{{:var, :x},{:num, 3}}, {{:var, :y}, {:q, 7, 3}}, {{:var, :z}, {:num, 11}}]
+    env = create_env(bindings)
+    ex0 = {:add, {:add, {:var, :x}, {:num, 2}}, {:add, {:var, :y}, {:q, 4, 7}}}
+    ex1 = {:sub, {:add, {:var, :x}, {:num, 2}}, {:sub, {:var, :y}, {:q, 4, 7}}}
+    {eval(ex0, env), eval(ex1, env)}
   end
 
   @spec create_env(binding()) :: map()
@@ -38,12 +40,17 @@ defmodule Evaluate do
 
   @spec eval(expr(), map()) :: literal()
   def eval({:num, n}, _) do {:num, n} end
+  def eval({:q, n, m}, _) do {:q, n, m} end
   def eval({:var, v}, env) do find_bind(env, {:var, v}) end
   def eval({:add, e0, e1}, env) do
     add(eval(e0, env), eval(e1, env))
   end
   def eval({:sub, e0, e1}, env) do
-
+    ev1 = eval(e1, env)
+    case ev1 do
+      {:num, n}-> add(eval(e0, env), {:num, -n})
+      {:q, n, m}->add(eval(e0, env), {:q, -n, m})
+    end
   end
 
   def add({:num, n0}, {:num, n1}) do {:num, n0 + n1} end
@@ -56,15 +63,11 @@ defmodule Evaluate do
     gcd1 = gcd(n1, m1)
     {:q, n0, m0} = {:q, div(n0, gcd0), div(m0, gcd0)}
     {:q, n1, m1} = {:q, div(n1, gcd1), div(m1, gcd1)}
-    IO.inspect({:q, n0, m0})
-    IO.inspect({:q, n1, m1})
     l = lcm(m0, m1)
-    {:q, n0, m0} = {:q, n0*(div(l , m0)), l}
+    {:q, n0, m0} = {:q, n0*(div(l, m0)), l}
     {:q, n1, m1} = {:q, n1*(div(l, m1)), l}
-    IO.inspect({:q, n0, m0})
-    IO.inspect({:q, n1, m1})
     cond do
-      #rem(n0 + n1, l) === 0-> {:num, div(n0 + n1, l)}
+      rem(n0 + n1, l) === 0-> {:num, div(n0 + n1, l)}
       true-> {:q, n0 + n1, l}
     end
   end

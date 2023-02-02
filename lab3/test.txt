@@ -1,2 +1,9 @@
 
 bindings = [{{:var, :x},{:num, 3}}, {{:var, :y}, {:q, 7, 3}}, {{:var, :z}, {:num, 11}}]
+
+q0 = {:q, 2, 3}
+q1 = {:q, 11, 5}
+
+ {:add, {:add, {:var, :x}, {:num, 2}}, {:add, {:var, :y}, {:q, 4, 7}}}
+
+  {:sub, {:add, {:var, :x}, {:num, 2}}, {:sub, {:var, :y}, {:q, 4, 7}}}
