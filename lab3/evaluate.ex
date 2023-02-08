@@ -24,7 +24,8 @@ defmodule Evaluate do
     ex2 = {:mul, {:add, {:var, :x}, {:num, 2}}, {:sub, {:var, :y}, {:q, 2, 3}}}
     # ((x+2)*(y - 2/3))/(z+3/4)
     ex3 = {:div, {:mul, {:add, {:var, :x}, {:num, 2}}, {:sub, {:var, :y}, {:q, 2, 3}}}, {:add, {:var, :z}, {:q, 3, 4}}}
-    {eval(ex0, env), eval(ex1, env), eval(ex2, env), eval(ex3, env)}
+    ex4 = {:add, {:add, {:mul, {:num, 2}, {:var, :x}}, {:num, 3}}, {:q, 1,2}}
+    {eval(ex0, env), eval(ex1, env), eval(ex2, env), eval(ex3, env), eval(ex4, env)}
   end
 
   @spec create_env(binding()) :: map()
