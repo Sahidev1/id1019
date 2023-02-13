@@ -9,38 +9,26 @@ defmodule Aoc do
     if ^status = :ok do
       queue = {{:size, 0}, []}
       start_index = 1
-      {{"start of packet",find_start_of_packet(data, queue, start_index)},{"start of message", find_start_of_message(data, queue, start_index, start_index)}}
+      {{"start of packet",find_sequential_match(data, queue, start_index, start_index, 4)},{"start of message", find_sequential_match(data, queue, start_index, start_index, 14)}}
     else
       {:error, "failed to read file"}
     end
   end
 
-  @spec find_start_of_packet(binary(), queue(), integer())::integer()
-  def find_start_of_packet(<< <<a::8, b::8, c::8, d::8 >>, rest::binary >>, {{:size, 0}, []}, start_index) do
-    find_start_of_packet(rest, fill_queue([{a,start_index},{b,start_index + 1},{c,start_index + 2},{d,start_index + 3}], {{:size, 0},[]}), start_index)
+  @spec find_sequential_match(binary(), queue(), integer(), integer(), integer())::integer()
+  def find_sequential_match(<< <<a::8>>, rest::binary>>, {{:size, 0}, []}, start_index, last_index, hit_size) do
+    find_sequential_match(rest, enqueue({{:size, 0}, []}, a, start_index), start_index, last_index, hit_size)
   end
-  def find_start_of_packet(<< <<a::8>>, rest::binary>>, q, start_index) do
-    last_index = start_index + 3;
-    q = dequeue(q, start_index)
-    {{:size, n}, l} = enqueue(q, a ,last_index + 1)
-    ((n === 4) && last_index + 1)|| find_start_of_packet(rest, {{:size, n}, l}, start_index + 1)
-  end
-  def find_start_of_packet(_,_,_) do -1 end
-
-  @spec find_start_of_message(binary(), queue(), integer(), integer())::integer()
-  def find_start_of_message(<< <<a::8>>, rest::binary>>, {{:size, 0}, []}, start_index, last_index) do
-    find_start_of_message(rest, enqueue({{:size, 0}, []}, a, start_index), start_index, last_index)
-  end
-  def find_start_of_message(<< <<a::8>>, rest::binary>>, q, start_index, last_index) when last_index < 14 do
+  def find_sequential_match(<< <<a::8>>, rest::binary>>, q, start_index, last_index, hit_size) when last_index < hit_size do
     {{:size, n}, l} = enqueue(q, a, last_index + 1)
-    (n === 14 && last_index + 1) || find_start_of_message(rest, {{:size, n}, l}, start_index , last_index + 1)
+    (n === hit_size && last_index + 1) || find_sequential_match(rest, {{:size, n}, l}, start_index , last_index + 1, hit_size)
   end
-  def find_start_of_message(<< <<a::8>>, rest::binary>>, q, start_index, last_index) do
+  def find_sequential_match(<< <<a::8>>, rest::binary>>, q, start_index, last_index, hit_size) do
     q = dequeue(q, start_index)
     {{:size, n}, l} = enqueue(q, a, last_index + 1)
-    (n === 14 && last_index + 1) || find_start_of_message(rest, {{:size, n}, l}, start_index + 1 , last_index + 1)
+    (n === hit_size && last_index + 1) || find_sequential_match(rest, {{:size, n}, l}, start_index + 1 , last_index + 1, hit_size)
   end
-  def find_start_of_message(_,_,_,_) do -1 end
+  def find_sequential_match(_,_,_,_,_) do -1 end
 
   @spec enqueue(queue(), any(), any())::queue()
   def enqueue({{:size, n},[]}, k, v) do {{:size, n + 1}, [{k, v}]} end
