@@ -3,13 +3,13 @@ defmodule Aoc do
   @type pair::{any(), any()}
   @type queue::{size(), list(pair)}
 
-  def solve_aoc_day_6_part1() do
+  def solve_aoc_day_6() do
     input_file_path = "input.txt"
     {status, data} = File.read(input_file_path)
     if ^status = :ok do
       queue = {{:size, 0}, []}
       start_index = 1
-      find_start_of_packet(data, queue, start_index)
+      {{"start of packet",find_start_of_packet(data, queue, start_index)},{"start of message", find_start_of_message(data, queue, start_index, start_index)}}
     else
       {:error, "failed to read file"}
     end
@@ -27,6 +27,21 @@ defmodule Aoc do
   end
   def find_start_of_packet(_,_,_) do -1 end
 
+  @spec find_start_of_message(binary(), queue(), integer(), integer())::integer()
+  def find_start_of_message(<< <<a::8>>, rest::binary>>, {{:size, 0}, []}, start_index, last_index) do
+    find_start_of_message(rest, enqueue({{:size, 0}, []}, a, start_index), start_index, last_index)
+  end
+  def find_start_of_message(<< <<a::8>>, rest::binary>>, q, start_index, last_index) when last_index < 14 do
+    {{:size, n}, l} = enqueue(q, a, last_index + 1)
+    (n === 14 && last_index + 1) || find_start_of_message(rest, {{:size, n}, l}, start_index , last_index + 1)
+  end
+  def find_start_of_message(<< <<a::8>>, rest::binary>>, q, start_index, last_index) do
+    q = dequeue(q, start_index)
+    {{:size, n}, l} = enqueue(q, a, last_index + 1)
+    (n === 14 && last_index + 1) || find_start_of_message(rest, {{:size, n}, l}, start_index + 1 , last_index + 1)
+  end
+  def find_start_of_message(_,_,_,_) do -1 end
+
   @spec enqueue(queue(), any(), any())::queue()
   def enqueue({{:size, n},[]}, k, v) do {{:size, n + 1}, [{k, v}]} end
   def enqueue({size, [{k, _}| t]}, k, v) do {size, [{k,v}| t]} end
@@ -37,7 +52,7 @@ defmodule Aoc do
   end
 
   @spec dequeue(queue(), any())::queue()
-  def dequeue({size, []}, v) do {size, []} end
+  def dequeue({size, []}, _) do {size, []} end
   def dequeue({{:size, n},[{_, v}| t]}, v) do {{:size, n - 1}, t} end
   def dequeue({size, [{k, h_v}|t]}, v) do
     {new_size, q} = dequeue({size, t}, v)
