@@ -4,15 +4,9 @@ defmodule Aoc do
   @type queue::{size(), list(pair)}
 
   def solve_aoc_day_6() do
-    input_file_path = "input.txt"
-    {status, data} = File.read(input_file_path)
-    if ^status = :ok do
-      queue = {{:size, 0}, []}
-      start_index = 1
-      {{"start of packet",find_sequential_match(data, queue, start_index, start_index, 4)},{"start of message", find_sequential_match(data, queue, start_index, start_index, 14)}}
-    else
-      {:error, "failed to read file"}
-    end
+    {:ok, data} = File.read("input.txt")
+    queue = {{:size, 0}, []}
+    {{"start of packet",find_sequential_match(data, queue, 1, 1, 4)},{"start of message", find_sequential_match(data, queue, 1, 1, 14)}}
   end
 
   @spec find_sequential_match(binary(), queue(), integer(), integer(), integer())::integer()
@@ -45,12 +39,5 @@ defmodule Aoc do
   def dequeue({size, [{k, h_v}|t]}, v) do
     {new_size, q} = dequeue({size, t}, v)
     {new_size, [{k, h_v}|q]}
-  end
-
-  @spec fill_queue(list(pair), queue())::queue()
-  def fill_queue([], q) do q end
-  def fill_queue([{k,v}|t], q) do
-    q = enqueue(q, k, v)
-    fill_queue(t, q)
   end
 end
