@@ -27,7 +27,6 @@ defmodule Aoc do
   @spec enqueue(queue(), any(), any())::queue()
   def enqueue({{:size, n},[]}, k, v) do {{:size, n + 1}, [{k, v}]} end
   def enqueue({size, [{k, _}| t]}, k, v) do {size, [{k,v}| t]} end
-  def enqueue([{h_k, h_v}|t], k, v) do [{h_k, h_v}|enqueue(t, k, v)] end
   def enqueue({size, [{h_k, h_v}|t]}, k, v) do
     {new_size, q } = enqueue({size, t}, k, v)
     {new_size, [{h_k, h_v}|q]}
