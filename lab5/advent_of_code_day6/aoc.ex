@@ -6,23 +6,23 @@ defmodule Aoc do
   def solve_aoc_day_6() do
     {:ok, data} = File.read("input.txt")
     queue = {{:size, 0}, []}
-    {{"start of packet",find_sequential_match(data, queue, 1, 1, 4)},{"start of message", find_sequential_match(data, queue, 1, 1, 14)}}
+    {{"start of packet",fsm(data, queue, 1, 1, 4)},{"start of message", fsm(data, queue, 1, 1, 14)}}
   end
 
-  @spec find_sequential_match(binary(), queue(), integer(), integer(), integer())::integer()
-  def find_sequential_match(<< <<a::8>>, rest::binary>>, {{:size, 0}, []}, start_index, last_index, hit_size) do
-    find_sequential_match(rest, enqueue({{:size, 0}, []}, a, start_index), start_index, last_index, hit_size)
+  @spec fsm(binary(), queue(), integer(), integer(), integer())::integer()
+  def fsm(<< <<a::8>>, rest::binary>>, {{:size, 0}, []}, st, li, hit_s) do
+    fsm(rest, enqueue({{:size, 0}, []}, a, st), st, li, hit_s)
   end
-  def find_sequential_match(<< <<a::8>>, rest::binary>>, q, start_index, last_index, hit_size) when last_index < hit_size do
-    {{:size, n}, l} = enqueue(q, a, last_index + 1)
-    (n === hit_size && last_index + 1) || find_sequential_match(rest, {{:size, n}, l}, start_index , last_index + 1, hit_size)
+  def fsm(<< <<a::8>>, rest::binary>>, q, st, li, hit_s) when li < hit_s do
+    {{:size, n}, l} = enqueue(q, a, li + 1)
+    (n === hit_s && li + 1)||fsm(rest, {{:size, n}, l}, st , li + 1, hit_s)
   end
-  def find_sequential_match(<< <<a::8>>, rest::binary>>, q, start_index, last_index, hit_size) do
-    q = dequeue(q, start_index)
-    {{:size, n}, l} = enqueue(q, a, last_index + 1)
-    (n === hit_size && last_index + 1) || find_sequential_match(rest, {{:size, n}, l}, start_index + 1 , last_index + 1, hit_size)
+  def fsm(<< <<a::8>>, rest::binary>>, q, st, li, hit_s) do
+    q = dequeue(q, st)
+    {{:size, n}, l} = enqueue(q, a, li + 1)
+    (n === hit_s && li + 1)||fsm(rest, {{:size, n}, l}, st + 1 , li + 1, hit_s)
   end
-  def find_sequential_match(_,_,_,_,_) do -1 end
+  def fsm(_,_,_,_,_) do -1 end
 
   @spec enqueue(queue(), any(), any())::queue()
   def enqueue({{:size, n},[]}, k, v) do {{:size, n + 1}, [{k, v}]} end
