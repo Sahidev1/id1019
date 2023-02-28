@@ -15,7 +15,7 @@ defmodule Train do
   def member([y|_], y) do true end
   def member([_|t], y) do member(t, y) end
 
-  def position([], y) do raise("atom "<>":"<>to_string(y)<>" is not a wagon of the train") end
+  def position([], _) do 0 end
   def position([y|_], y) do 1 end
   def position([_|t], y) do position(t, y) + 1 end
 

@@ -23,7 +23,7 @@ defmodule Moves do
     cond do
       n == 0->{main, track}
       n > 0->
-        {k, remaining, taken} = Train.main(main, n)
+        {_, remaining, taken} = Train.main(main, n)
         {remaining, Train.append(track, taken)}
       true->
         taken = Train.take(track, abs(n))
@@ -32,7 +32,7 @@ defmodule Moves do
   end
 
   def sequence([], state) do [state] end
-  def sequence([{move, n}|t], state={main, one, two}) do
+  def sequence([{move, n}|t], state) do
     [state| sequence(t, single({move, n},state))]
   end
 end
