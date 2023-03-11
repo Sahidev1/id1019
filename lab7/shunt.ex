@@ -32,6 +32,30 @@ defmodule Shunt do
     find({Train.drop(m, 1), [], []}, {Train.drop(ys, 1), [],[]})]
   end
 
+  def fewer([],_,_,[]) do [] end
+  def fewer(ms, os, ts, ys) do
+    taken = Train.take(ys, 1)
+    [taken_wagon|_]=taken
+    cond do
+      Train.member(ms, taken_wagon)->
+        {hs, bs} = Train.split(ms, taken_wagon)
+        m0 = Train.append([taken_wagon], bs)|>Train.position(nil)
+        m1 = Train.position(hs, nil)
+        mv = [{:one, m0}, {:two, m1}, {:one, -1}]
+        mv++fewer(taken, bs, hs, Train.drop(ys, 1))
+      Train.member(os, taken_wagon)->
+        {hs, bs} = Train.split(os, taken_wagon)
+        m1 = Train.position(hs, nil)
+        mv = [{:one, -m1}, {:two, m1}, {:one, -1}]
+        mv++fewer(taken, bs, Train.append(hs, ts), Train.drop(ys, 1))
+      Train.member(ts, taken_wagon)->
+        {hs, bs} = Train.split(ts, taken_wagon)
+        m1 = Train.position(hs, nil)
+        mv = [{:two, -m1}, {:one, m1}, {:two, -1}]
+        mv++fewer(taken, Train.append(hs, ts), bs, Train.drop(ys, 1))
+    end
+  end
+
   def few({[],_,_}, {[],_,_}) do [] end
   def few({xs, [], []}, {ys, [], []}) do
     taken = Train.take(ys, 1)
