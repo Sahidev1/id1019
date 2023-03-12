@@ -25,6 +25,13 @@ defmodule Huffman do
     #decode(seq, decode)
   end
 
+  def test2(input) do
+    [tree|_] = tree(input)
+    tab = encode_table(tree)
+    IO.inspect((fn l-> Enum.map(l, fn {c,path}-> {[c], path} end) end).(tab))
+    encode(input, tab)
+  end
+
   def tree(sample) do
     prio_q = freq(sample)
     huffman(prio_q)
@@ -32,32 +39,37 @@ defmodule Huffman do
 
   def huffman([{e, v}|[]]) do [{e, v}] end
   def huffman([h0={e0, v0}|[h1={e1, v1}|t]]) do
-    #node = {{h0, h1}, v0 + v1}
-
-    IO.inspect({h0,h1})
-    tree = putnode(t, {{h0, h1}, v0 + v1})
-    IO.inspect(tree)
-    huffman(tree)
+    tree = putnode(t, {{h0, h1}, v0 + v1})|>huffman()
   end
 
   def putnode([], n) do [n] end
   def putnode(tree=[{_, v0}|_], n={_, v1}) when v1 <= v0 do [n|tree] end
   def putnode([h|t], n) do [h|putnode(t, n)] end
 
-  def encode_table(tree) do
-    # To implement...
+  def encode_table({{left, right}, v}) do
+    left_c = encode_table(left)
+    right_c = encode_table(right)
+    add_path(left_c, 0)++add_path(right_c, 1)
+  end
+  def encode_table({char, v}) do [{char, []}] end
+  def add_path([], v) do [] end
+  def add_path([{char, path}|rest], v) do
+    [{char, [v|path]}|add_path(rest, v)]
   end
 
   def decode_table(tree) do
-    # To implement...
+    encode_table(tree)|>Enum.map(fn {char, code}-> {code, char} end)
   end
 
-  def encode(text, table) do
-    # To implement...
+  def encode(text, table) do encode(text, table, table) end
+  def encode([], _, _) do [] end
+  def encode([char|rest], [{char, path}|_], init) do path++encode(rest, init) end
+  def encode(txt=[char0|rest], table=[{char1, path}|st], init) do
+    encode(txt, st, init)
   end
 
   def decode(seq, tree) do
-    # To implement...
+
   end
 
   def freq(char_list) do
