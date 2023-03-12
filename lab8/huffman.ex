@@ -50,12 +50,17 @@ defmodule Huffman do
   def putnode(tree=[{_, v0}|_], n={_, v1}) when v1 <= v0 do [n|tree] end
   def putnode([h|t], n) do [h|putnode(t, n)] end
 
-  def encode_table({{left, right}, _}) do
+  def encode_table(tree) do
+    encoder(tree)|>Enum.sort(fn {_,p0}, {_,p1} ->
+      length(p0) < length(p1)
+    end)
+  end
+  def encoder({{left, right}, _}) do
     left_c = encode_table(left)
     right_c = encode_table(right)
     add_path(left_c, 0)++add_path(right_c, 1)
   end
-  def encode_table({char, _}) do [{char, []}] end
+  def encoder({char, _}) do [{char, []}] end
   def add_path([], _) do [] end
   def add_path([{char, path}|rest], v) do
     [{char, [v|path]}|add_path(rest, v)]

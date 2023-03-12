@@ -1,0 +1,10 @@
+
+{{"build tree", 62.09}, {"encoding table", 0.018}, {"decoding table", 0.021},
+ {"encoding", 891.852}, {"decoding", 1907.081}}
+
+after optimization: 
+
+{{"build tree", 50.146}, {"encoding table", 0.205}, {"decoding table", 0.417},
+ {"encoding", 219.595}, {"decoding", 1834.293}}
+
+
