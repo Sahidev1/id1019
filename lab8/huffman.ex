@@ -16,20 +16,24 @@ defmodule Huffman do
   end
 
   def test do
-    sample = text()
-    tree = tree(sample)
-    #encode = encode_table(tree)
-    #decode = decode_table(tree)
-    #text = text()
-    #seq = encode(text, encode)
-    #decode(seq, decode)
+    sample = sample()
+    [tree|_] = tree(sample)
+    encode = encode_table(tree)
+    decode = decode_table(tree)
+    text = text()
+    seq = encode(text, encode)
+    decode(seq, decode)
   end
 
   def test2(input) do
     [tree|_] = tree(input)
     tab = encode_table(tree)
     IO.inspect((fn l-> Enum.map(l, fn {c,path}-> {[c], path} end) end).(tab))
-    encode(input, tab)
+    enc = encode(input, tab)
+    IO.inspect(enc)
+    decoder = decode_table(tree)
+    IO.inspect(decoder)
+    decode(enc, decoder)
   end
 
   def tree(sample) do
@@ -39,7 +43,7 @@ defmodule Huffman do
 
   def huffman([{e, v}|[]]) do [{e, v}] end
   def huffman([h0={e0, v0}|[h1={e1, v1}|t]]) do
-    tree = putnode(t, {{h0, h1}, v0 + v1})|>huffman()
+    putnode(t, {{h0, h1}, v0 + v1})|>huffman()
   end
 
   def putnode([], n) do [n] end
@@ -68,8 +72,17 @@ defmodule Huffman do
     encode(txt, st, init)
   end
 
-  def decode(seq, tree) do
-
+  def decode([], _) do [] end
+  def decode(seq, table) do
+    {char, rest} = decode_char(seq, 1, table)
+    [char|decode(rest, table)]
+  end
+  def decode_char(seq, n, table) do
+    {code, rest} = Enum.split(seq, n)
+    case List.keyfind(table, code, 0) do
+      {_, char}->{char, rest}
+      nil->decode_char(seq, n + 1, table)
+    end
   end
 
   def freq(char_list) do
@@ -78,8 +91,7 @@ defmodule Huffman do
   def freq([], f) do f end
   def freq([h|t], f) do
     f = put(h, f)
-    upd_f = freq(t, f)
-    upd_f
+    freq(t, f)
   end
   def put(char, []) do [{char, 1}] end
   def put(char, [{char, count}|t]) do [{char, count + 1}|t] end
