@@ -30,37 +30,19 @@ defmodule Huffman do
     huffman(prio_q)
   end
 
-  def huffman(tree) when length(tree) === 1 do tree end
-  def huffman(tree) do
-    {tree, h0={e0, min0}} = getmin(tree)
-    {tree, h1={e1, min1}} = getmin(tree)
+  def huffman([{e, v}|[]]) do [{e, v}] end
+  def huffman([h0={e0, v0}|[h1={e1, v1}|t]]) do
+    #node = {{h0, h1}, v0 + v1}
 
-    tree = [{{h0, h1}, min0 + min1}|tree]
-    #IO.inspect(tree)
+    IO.inspect({h0,h1})
+    tree = putnode(t, {{h0, h1}, v0 + v1})
+    IO.inspect(tree)
     huffman(tree)
   end
 
-  def getmin([]) do {[], -1} end
-  def getmin(prio_q=[e|t]) do getmin(prio_q, e) end
-  def getmin([], m) do {[], m} end
-  def getmin([e={huff, c0}|q], m={_,c1}) when c0 < c1 do
-    {upd_q, min}=getmin(q, e)
-    case min do
-      ^e->
-        {upd_q, min}
-      _->
-        {[e|upd_q], min}
-    end
-  end
-  def getmin([e|q], m) do
-    {upd_q, min} = getmin(q, m)
-    case min do
-      ^e->
-        {upd_q, min}
-      _->
-        {[e|upd_q], min}
-    end
-  end
+  def putnode([], n) do [n] end
+  def putnode(tree=[{_, v0}|_], n={_, v1}) when v1 <= v0 do [n|tree] end
+  def putnode([h|t], n) do [h|putnode(t, n)] end
 
   def encode_table(tree) do
     # To implement...
@@ -78,7 +60,9 @@ defmodule Huffman do
     # To implement...
   end
 
-  def freq(char_list) do freq(char_list, []) end
+  def freq(char_list) do
+    freq(char_list, [])|>Enum.sort(fn {_, c0}, {_, c1}-> c0 < c1 end)
+  end
   def freq([], f) do f end
   def freq([h|t], f) do
     f = put(h, f)
@@ -88,5 +72,4 @@ defmodule Huffman do
   def put(char, []) do [{char, 1}] end
   def put(char, [{char, count}|t]) do [{char, count + 1}|t] end
   def put(char, [h|t]) do [h|put(char, t)] end
-
 end
