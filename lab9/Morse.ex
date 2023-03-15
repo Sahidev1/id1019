@@ -52,7 +52,7 @@ defmodule Morse do
       end
     end
 
-    def genmap() do morse()|>to_map('',%{}) end
+    def gen_encode_map() do morse()|>to_map('',%{}) end
 
     #tree to map
     def to_map(nil, path, map) do map end
@@ -68,15 +68,56 @@ defmodule Morse do
       map
     end
 
+
+    def gen_decode_list() do morse()|>to_list('',[]) end
+
+    def to_list(nil, path, lst) do lst end
+    def to_list({_, :na, long, short}, path, lst) do
+      lst = to_list(long, path++'-', lst)
+      lst = to_list(short, path++'.', lst)
+      lst
+    end
+    def to_list({_, char, long, short}, path, lst) do
+      lst = to_list(long, path++'-', lst)
+      lst = to_list(short, path++'.', lst)
+      [{path, char}|lst]
+    end
+
     #encoder
     def encode(msg) do
-      table = genmap();
+      table = gen_encode_map()
       encode(msg, table, '')
     end
     #tail recursive implementation
     def encode([], table, encoding) do encoding end
     def encode([charval|msg], table, encoding) do
-      encoding = encoding++Map.get(table, charval)
+      encoding = encoding++' '++Map.get(table, charval)
       encode(msg, table, encoding)
+    end
+
+
+    def decoder(code) do
+      tree = morse()
+      decoder(tree, code, '', '')
+    end
+    def decoder(_, [], [], msg) do msg end
+    def decoder(tree, [], curr, msg) do msg++decode(tree, curr) end
+    def decoder(tree, [32|code], [], msg) do
+      decoder(tree, code, [], msg)
+    end
+    def decoder(tree, [32|code], curr, msg) do
+      msg = msg++decode(tree, curr)
+      decoder(tree, code, [], msg)
+    end
+    def decoder(tree, [char|code], curr, msg) do
+      decoder(tree, code, curr++[char], msg)
+    end
+
+    def decode(tree={_, char, _, _}, []) do [char] end
+    def decode(tree={_, char, long, short}, code=[c|rest]) do
+      case [c] do
+        '-'->decode(long, rest)
+        '.'->decode(short, rest)
+      end
     end
 end
