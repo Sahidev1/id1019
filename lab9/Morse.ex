@@ -39,6 +39,23 @@ defmodule Morse do
     {:node, 104, {:node, 52, nil, nil}, {:node, 53, nil, nil}}}}}}
     end
 
+    def test() do
+
+      base =  '.- .-.. .-.. ..-- -.-- --- ..- .-. ..-- -... .- ... . ..-- .- .-. . ..-- -... . .-.. --- -. --. ..-- - --- ..-- ..- ... '
+
+      rolled=   '.... - - .--. ... ---... .----- .----- .-- .-- .-- .-.-.- -.-- --- ..- - ..- -... . .-.-.- -.-. --- -- .----- .-- .- - -.-. .... ..--.. ...- .----. -.. .--.-- ..... .---- .-- ....- .-- ----. .--.-- ..... --... --. .--.-- ..... ---.. -.-. .--.-- ..... .---- '
+
+      name = 'ali'
+
+      enc = encode(name)
+      IO.puts(enc)
+      dec = decoder(enc)
+      IO.puts(dec)
+
+      IO.puts(decoder(base))
+      IO.puts(decoder(rolled))
+    end
+
     #to morse using the initial tree
     def to_morse(nil, char1, path) do nil end
     def to_morse({_, char, long, short}, char, path) do path end
