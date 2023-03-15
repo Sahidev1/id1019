@@ -85,21 +85,6 @@ defmodule Morse do
       map
     end
 
-
-    def gen_decode_list() do morse()|>to_list('',[]) end
-
-    def to_list(nil, path, lst) do lst end
-    def to_list({_, :na, long, short}, path, lst) do
-      lst = to_list(long, path++'-', lst)
-      lst = to_list(short, path++'.', lst)
-      lst
-    end
-    def to_list({_, char, long, short}, path, lst) do
-      lst = to_list(long, path++'-', lst)
-      lst = to_list(short, path++'.', lst)
-      [{path, char}|lst]
-    end
-
     #encoder
     def encode(msg) do
       table = gen_encode_map()
