@@ -56,7 +56,7 @@ defmodule Huffman do
     end)
   end
   def encoder({{left, right}, _}) do
-    left_c = encode_table(left)
+    left_c = encode_table(left) # this is a bug, should call encoder, fix this when have access to dev PC!
     right_c = encode_table(right)
     add_path(left_c, 0)++add_path(right_c, 1)
   end
