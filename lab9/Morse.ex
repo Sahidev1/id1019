@@ -85,34 +85,29 @@ defmodule Morse do
     #encoder
     def encode(msg) do
       table = gen_encode_map()
-      encode(msg, table, '')
+      Enum.reverse(msg)|>encode(table, '')
     end
     #tail recursive implementation
+    #function complexity: Reverse a list of size n take n ops.
+    #encoding up after reversing will have this ops: m0 + 2m1 + 3m2 +... + (n-1)mk + n*mk+1 => if M is avg length of all morse => M*n operations in total => O(M*n)
+    # nr ops including reversal: C = M*n + n. Since M*n will dominate or equal n for different values of M and n => Final complexity: O(M*n)
     def encode([], table, encoding) do encoding end
-    #function complexity: C = 0 + 1 + 2² + 3² +...+ (m - 1)² + m² =   O(n²) since telescoping series: sigma(m² - (m-1)²)[0,n] = n²
+    #function complexity:
     def encode([charval|msg], table, encoding) do
-      encoding = encoding++' '++Map.get(table, charval)# operation complexity: copying encoding and going to the end of encoding list, if encoding size is n => O(m²)
-      encode(msg, table, encoding)
+      encode(msg, table, Map.get(table, charval)++[32|encoding]) # Append operation complexity O(m) where m is the length of looked up morsecode.
     end
-
 
 
     def decoder(code) do
       tree = morse()
       decoder(tree, code, '', '')
     end
-    # For each space seperated morsecode in the morsecode message sequence we do:
-    # we append all the morse characters between the spaces, For a morsecode of length l
-    # the number of ops can be described 1 + 2 + ... + (l - 1) + l = l²/2 => Complexity is O(l²).
-    # After we have appended all characters between the spaces we have the full morsecode and lookup the character associated with it
-    # and then we append the character to the decoded msg so far. For a morsecode sequence of length m morsecodes we will perform
-    # (L²) + 2(L²) + ... (m - 1)L² + mL² = m²L²/4. In out case l has a max value of 6 since max depth of morse tree is 6.
-    # Each lookup also has at most complexity 6 in our case and we can consider the lookup operation constant.
-    # Therefor for large m we can consider l to be a constant => Complexity of O(m²) where m is the number of morsecodes in the morse sequence.
-    # If L is the average length of each morse code then total number of character in the morse sequence can be defined as v = L*m => Complexity in
-    # terms of the number of characters in the morse sequence: complexity O(v²).
+
     def decoder(_, [], [], msg) do msg end
-    def decoder(tree, [], curr, msg) do msg++decode(tree, curr) end
+    def decoder(tree, [], curr, msg) do
+      #IO.puts(msg)
+      IO.puts(curr)
+      msg++decode(tree, curr) end
     def decoder(tree, [32|code], [], msg) do
       decoder(tree, code, [], msg)
     end
