@@ -57,9 +57,9 @@ defmodule Morse do
     end
 
     #to morse using the initial tree
-    def to_morse(nil, char1, path) do nil end
-    def to_morse({_, char, long, short}, char, path) do path end
-    def to_morse({_, char0, long, short}, char1, path) do
+    def to_morse(nil, _, _) do nil end
+    def to_morse({_, char, _,_}, char, path) do path end
+    def to_morse({_, _, long, short}, char1, path) do
       lres = to_morse(long, char1, path++'-')
       sres = to_morse(short, char1, path++'.')
       if lres !== nil do
@@ -72,7 +72,7 @@ defmodule Morse do
     def gen_encode_map() do morse()|>to_map('',%{}) end
 
     #tree to map
-    def to_map(nil, path, map) do map end
+    def to_map(nil, _, map) do map end
     def to_map({_, :na, long, short}, path, map) do
       map = to_map(long, path++'-', map)
       to_map(short, path++'.', map)    end
@@ -91,7 +91,7 @@ defmodule Morse do
     #function complexity: Reverse a list of size n take n ops.
     #encoding up after reversing will have this ops: m0 + 2m1 + 3m2 +... + (n-1)mk + n*mk+1 => if M is avg length of all morse => M*n operations in total => O(M*n)
     # nr ops including reversal: C = M*n + n. Since M*n will dominate or equal n for different values of M and n => Final complexity: O(M*n)
-    def encode([], table, encoding) do encoding end
+    def encode([], _, encoding) do encoding end
     #function complexity:
     def encode([charval|msg], table, encoding) do
       encode(msg, table, Map.get(table, charval)++[32|encoding]) # Append operation complexity O(m) where m is the length of looked up morsecode.
@@ -122,8 +122,8 @@ defmodule Morse do
     # The characters of the morse code is essentialy direction to the character on the tree.
     # The complexity can be described as O(v) where v = |morsecode|
     # The best case complexity is O(1) and the worst case complexity is O(w) where w is the depth of the morse tree
-    def decode(tree={_, char, _, _}, []) do [char] end
-    def decode(tree={_, char, long, short}, code=[c|rest]) do
+    def decode({_, char, _, _}, []) do [char] end
+    def decode({_, _, long, short}, [c|rest]) do
       case [c] do
         '-'->decode(long, rest)
         '.'->decode(short, rest)
