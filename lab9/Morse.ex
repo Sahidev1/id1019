@@ -75,14 +75,11 @@ defmodule Morse do
     def to_map(nil, path, map) do map end
     def to_map({_, :na, long, short}, path, map) do
       map = to_map(long, path++'-', map)
-      map = to_map(short, path++'.', map)
-      map
-    end
+      to_map(short, path++'.', map)    end
     def to_map({_, char, long, short}, path, map) do
       map = Map.put(map, char, path)
       map = to_map(long, path++'-', map)
-      map = to_map(short, path++'.', map)
-      map
+      to_map(short, path++'.', map)
     end
 
     #encoder
@@ -92,16 +89,28 @@ defmodule Morse do
     end
     #tail recursive implementation
     def encode([], table, encoding) do encoding end
+    #function complexity: C = 0 + 1 + 2² + 3² +...+ (m - 1)² + m² =   O(n²) since telescoping series: sigma(m² - (m-1)²)[0,n] = n²
     def encode([charval|msg], table, encoding) do
-      encoding = encoding++' '++Map.get(table, charval)
+      encoding = encoding++' '++Map.get(table, charval)# operation complexity: copying encoding and going to the end of encoding list, if encoding size is n => O(m²)
       encode(msg, table, encoding)
     end
+
 
 
     def decoder(code) do
       tree = morse()
       decoder(tree, code, '', '')
     end
+    # For each space seperated morsecode in the morsecode message sequence we do:
+    # we append all the morse characters between the spaces, For a morsecode of length l
+    # the number of ops can be described 1 + 2 + ... + (l - 1) + l = l²/2 => Complexity is O(l²).
+    # After we have appended all characters between the spaces we have the full morsecode and lookup the character associated with it
+    # and then we append the character to the decoded msg so far. For a morsecode sequence of length m morsecodes we will perform
+    # (L²) + 2(L²) + ... (m - 1)L² + mL² = m²L²/4. In out case l has a max value of 6 since max depth of morse tree is 6.
+    # Each lookup also has at most complexity 6 in our case and we can consider the lookup operation constant.
+    # Therefor for large m we can consider l to be a constant => Complexity of O(m²) where m is the number of morsecodes in the morse sequence.
+    # If L is the average length of each morse code then total number of character in the morse sequence can be defined as v = L*m => Complexity in
+    # terms of the number of characters in the morse sequence: complexity O(v²).
     def decoder(_, [], [], msg) do msg end
     def decoder(tree, [], curr, msg) do msg++decode(tree, curr) end
     def decoder(tree, [32|code], [], msg) do
@@ -115,6 +124,11 @@ defmodule Morse do
       decoder(tree, code, curr++[char], msg)
     end
 
+    # Function complexity: Since we are using the morse tree for decoding
+    # the complexity of decoding a morsecode is equivalent to the length of the morsecode.
+    # The characters of the morse code is essentialy direction to the character on the tree.
+    # The complexity can be described as O(v) where v = |morsecode|
+    # The best case complexity is O(1) and the worst case complexity is O(w) where w is the depth of the morse tree
     def decode(tree={_, char, _, _}, []) do [char] end
     def decode(tree={_, char, long, short}, code=[c|rest]) do
       case [c] do
